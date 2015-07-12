@@ -1,5 +1,5 @@
 
-Build all Vibir components and related items into one unified flash hexfile.
+Build all firmware components and related items into one unified flash hexfile.
 
 Dependencies:
     JLink installed and accessed via $PATH  
