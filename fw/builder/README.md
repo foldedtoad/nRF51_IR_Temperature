@@ -1,7 +1,8 @@
 
 Build all firmware components and related items into one unified flash hexfile.
 
-Dependencies:
+Dependencies:  
+    python 2.7 (Other versions may work, but developed and tested with this version)  
     JLink installed and accessed via $PATH  
     intelhex package installed (hexmerge)
 
@@ -11,7 +12,7 @@ The command below will install intelhex (and hexmerge.py).
 
      $ sudo pip install intelhex
 
-NOTE: hexmerge can take quite a while to run; up to a minute or longer.
+**NOTE:** hexmerge can take quite a while to run; up to a minute or longer.
 
 The sequence of operations are --  
 
