@@ -231,8 +231,7 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).elf
 	$(NO_ECHO)$(MAKE) -f $(MAKEFILE_NAME) -C $(MAKEFILE_DIR) -e finalize
 
-	$(CP) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).hex $(OUTPUT_BINARY_DIRECTORY)/$(VERSION_NAME).hex
-	#$(NO_ECHO)$(CP) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).hex $(OUTPUT_BINARY_DIRECTORY)/$(VERSION_NAME).hex
+	$(NO_ECHO)$(CP) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).bin $(OUTPUT_BINARY_DIRECTORY)/$(VERSION_NAME).bin
 	$(NO_ECHO)$(CP) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).dat $(OUTPUT_BINARY_DIRECTORY)/$(VERSION_NAME).dat
 	$(NO_ECHO)$(CP) $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).zip $(OUTPUT_BINARY_DIRECTORY)/$(VERSION_NAME).zip
 
@@ -243,14 +242,15 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo "build target:  $(TARGET_BOARD)"
 	@echo "build SOC:     $(TARGET_SOC)"
 	@echo "build options  --"
-	@echo "               DBGLOG_SUPPORT       $(DBGLOG_SUPPORT)"
+	@echo "               DBGLOG_SUPPORT   $(DBGLOG_SUPPORT)"
 	@echo "build products --"
 	@echo "               $(OUTPUT_NAME).elf"
 	@echo "               $(OUTPUT_NAME).hex"
+	@echo "               $(OUTPUT_NAME).bin"
 	@echo "               $(OUTPUT_NAME).dat"
 	@echo "               $(OUTPUT_NAME).zip"
 	@echo "build versioning --"
-	@echo "               $(VERSION_NAME).hex"
+	@echo "               $(VERSION_NAME).bin"
 	@echo "               $(VERSION_NAME).dat"
 	@echo "               $(VERSION_NAME).zip"
 	@echo "*****************************************************"
