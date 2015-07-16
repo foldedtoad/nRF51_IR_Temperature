@@ -89,7 +89,7 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 #else
     // On assert, the system can only recover with a reset.   
     NVIC_SystemReset();
-#endif    
+#endif
 }
 
 
@@ -211,7 +211,7 @@ static void battery_service_init(void)
     uint32_t       err_code;
     ble_bas_init_t bas_init;
  
-#ifdef USE_BATTERY_SIMULATOR 
+#ifdef USE_BATTERY_SIMULATOR
     {
         m_battery_sim_cfg.min          = MIN_BATTERY_LEVEL;
         m_battery_sim_cfg.max          = MAX_BATTERY_LEVEL;
@@ -220,7 +220,7 @@ static void battery_service_init(void)
 
         ble_sensorsim_init(&m_battery_sim_state, &m_battery_sim_cfg);
     }
-#endif 
+#endif
 
     // Initialize Battery Service
     memset(&bas_init, 0, sizeof(bas_init));
@@ -261,7 +261,7 @@ static void device_info_service_init(void)
 
     err_code = ble_dis_init(&dis_init);
     APP_ERROR_CHECK(err_code);
-    
+
     puts("Device Info Service");
 }
 
@@ -296,7 +296,7 @@ static void gap_params_init(void)
     /* Dynamically build-up MAC address and Device Name */
     {
         char device_name [24];
-        ble_gap_addr_t mac = { 0 }; 
+        ble_gap_addr_t mac = { 0 };
 
         err_code = sd_ble_gap_address_get( &mac );
         APP_ERROR_CHECK(err_code);
@@ -304,13 +304,13 @@ static void gap_params_init(void)
         /*  Device name unique-ifier: Use lower 3 bytes of MAC 
          *  as extension to device name. 
          */
-        sprintf(device_name, "%s_%02X%02X%02X", DEVICE_NAME, 
+        sprintf(device_name, "%s_%02X%02X%02X", DEVICE_NAME,
                 mac.addr[2], mac.addr[1], mac.addr[0] );
 
         PRINTF("device name: %s\n", device_name);
 
-        err_code = sd_ble_gap_device_name_set(&sec_mode, 
-                                              (const uint8_t *) &device_name, 
+        err_code = sd_ble_gap_device_name_set(&sec_mode,
+                                              (const uint8_t *) &device_name,
                                               strlen(device_name));
         APP_ERROR_CHECK(err_code);
     }
@@ -425,8 +425,8 @@ static void advertising_init(void)
     puts("advertising_init");
 
     /* Set flags according to whether a non-zero advertisement (DISCovery) timeout is given */
-    flags = (APP_ADV_TIMEOUT_IN_SECONDS == 0) ? 
-                  BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE : 
+    flags = (APP_ADV_TIMEOUT_IN_SECONDS == 0) ?
+                  BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE :
                        BLE_GAP_ADV_FLAGS_LE_ONLY_LIMITED_DISC_MODE;
 
     ble_uuid_t scan_uuids[] = {
@@ -466,11 +466,11 @@ static void advertising_start(void)
         // advertising until it's complete.
         err_code = pstorage_access_status_get(&count);
         APP_ERROR_CHECK(err_code);
-    
+
         if (count != 0) {
             m_memory_access_in_progress = true;
             return;
-        }        
+        }
     }
 
     // Start advertising
@@ -486,8 +486,8 @@ static void advertising_start(void)
     APP_ERROR_CHECK(err_code);
 
     // Start advertising LED timer
-    err_code = app_timer_start(m_advertising_timer_id, 
-                               ADVERT_BLINK_INTERVAL_LONG, 
+    err_code = app_timer_start(m_advertising_timer_id,
+                               ADVERT_BLINK_INTERVAL_LONG,
                                (void*)ADVERT_BLINK_INTERVAL_LONG);
     APP_ERROR_CHECK(err_code); 
 }
@@ -524,7 +524,7 @@ static void advertising_timeout_handler(void * last_interval)
     }
 
     // Restart advertising timer with new time interval.
-    err_code = app_timer_start(m_advertising_timer_id, 
+    err_code = app_timer_start(m_advertising_timer_id,
                                next_interval, 
                                (void*)next_interval);
     APP_ERROR_CHECK(err_code); 
@@ -599,12 +599,12 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
     switch (p_ble_evt->header.evt_id) {
 
         case BLE_GAP_EVT_CONNECTED:
-            
+
             puts("on_ble_evt: CONNECTED");
 
             // Stop advertising timer
             APP_ERROR_CHECK(app_timer_stop(m_advertising_timer_id));
-            
+
 #if defined(INDICATE_CONNECT)
             LED_ON(CONNECTED_LED_PIN);
 #endif
@@ -676,7 +676,7 @@ static void on_ble_evt(ble_evt_t * p_ble_evt)
                 LED_OFF(ADVERTISING_LED_PIN);
                 
                 // Go to system-off mode (this function will not return; wakeup will cause a reset)  
-                puts("system power off");              
+                puts("system power off");
                 err_code = sd_power_system_off();
                 APP_ERROR_CHECK(err_code);
             }
@@ -877,7 +877,7 @@ int main(void)
     uart_init();
 
     PRINTF("\n*** Temp built: %s %s ***\n\n", __DATE__, __TIME__);
-    
+
     APP_ERROR_CHECK(pstorage_init());
 
     leds_init();

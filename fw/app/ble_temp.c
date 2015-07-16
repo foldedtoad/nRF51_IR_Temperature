@@ -1,4 +1,5 @@
 /* 
+ *  ble_temp.c   BLE surface for TMP006 Infrared Thermopile Sensor access.
  *  Copyright (c) 2015 Robin Callender. All Rights Reserved.
  */
 #include <stdio.h>
@@ -57,7 +58,7 @@ static void on_temp_cccd_write(ble_temp_t * p_temp, ble_gatts_evt_write_t * p_ev
             p_temp->notify_enabled = true;
             PUTS("Start temp timer");
             APP_ERROR_CHECK(app_timer_start(m_temperature_timer_id, m_interval, NULL));
-        } 
+        }
         else {
             p_temp->notify_enabled = false;
             PUTS("Stop temp timer");
@@ -110,7 +111,7 @@ static void on_write(ble_temp_t * p_temp, ble_evt_t * p_ble_evt)
             if (p_evt_write->len != sizeof(uint16_t)) {
                 //printf("on_write: bad len: %d\n", p_evt_write->len);
                 break;
-            }        
+            }
             on_temp_cccd_write(p_temp, p_evt_write);
             break;
 
@@ -118,7 +119,7 @@ static void on_write(ble_temp_t * p_temp, ble_evt_t * p_ble_evt)
             if (p_evt_write->len != sizeof(uint32_t)) {
                 //printf("on_write: bad len: %d\n", p_evt_write->len);
                 break;
-            }        
+            }
             on_temp_interval_write(p_temp, p_evt_write);
             break;
 
@@ -128,7 +129,7 @@ static void on_write(ble_temp_t * p_temp, ble_evt_t * p_ble_evt)
             break;
 
         default:
-            printf("unknown uuid: 0x%x\n", 
+            printf("unknown uuid: 0x%x\n",
                    (unsigned) p_evt_write->context.char_uuid.uuid);
             break;
     }  
@@ -145,35 +146,35 @@ void ble_temp_on_ble_evt(ble_temp_t * p_temp, ble_evt_t * p_ble_evt)
 {
     switch (p_ble_evt->header.evt_id) {
 
-        case BLE_GAP_EVT_CONNECTED:     
-            PUTS("evt_id: CONNECTED");       
+        case BLE_GAP_EVT_CONNECTED:
+            PUTS("evt_id: CONNECTED");
             on_connect(p_temp, p_ble_evt);
             break;
-            
+
         case BLE_GAP_EVT_DISCONNECTED:
             on_disconnect(p_temp, p_ble_evt);
             PUTS("Stop temp timer");
             APP_ERROR_CHECK(app_timer_stop(m_temperature_timer_id));
             break;
-            
+
         case BLE_GATTS_EVT_WRITE:
             on_write(p_temp, p_ble_evt);
             break;
-            
+
         case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
             break;
 
         case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-            break;            
-            
+            break;
+
         case BLE_GATTS_EVT_HVC:
             break;
 
         case BLE_GATTS_EVT_SC_CONFIRM:
-            break;            
+            break;
 
         case BLE_GATTS_EVT_TIMEOUT:
-            break;            
+            break;
 
         default:
             break;
@@ -191,8 +192,8 @@ static uint32_t temperature_char_add(ble_temp_t * p_temp)
     ble_gatts_attr_t     attr_char_value;
     ble_uuid_t           ble_uuid;
     ble_gatts_attr_md_t  attr_md;
-    ble_gatts_char_pf_t  char_pf;    
-    ble_gatts_attr_md_t  desc_md;    
+    ble_gatts_char_pf_t  char_pf;
+    ble_gatts_attr_md_t  desc_md;
 
     static const uint8_t user_desc[] = "Temperature";
 
@@ -224,7 +225,7 @@ static uint32_t temperature_char_add(ble_temp_t * p_temp)
 
     ble_uuid.type = p_temp->uuid_type;
     ble_uuid.uuid = TEMP_UUID_TEMPERATURE_CHAR;
-    
+
     memset(&attr_md, 0, sizeof(attr_md));
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_md.write_perm);
@@ -232,7 +233,7 @@ static uint32_t temperature_char_add(ble_temp_t * p_temp)
     attr_md.rd_auth    = 0;
     attr_md.wr_auth    = 0;
     attr_md.vlen       = 0;
-    
+
     memset(&attr_char_value, 0, sizeof(attr_char_value));
     attr_char_value.p_uuid       = &ble_uuid;
     attr_char_value.p_attr_md    = &attr_md;
@@ -240,7 +241,7 @@ static uint32_t temperature_char_add(ble_temp_t * p_temp)
     attr_char_value.init_offs    = 0;
     attr_char_value.max_len      = sizeof(uint16_t);
     attr_char_value.p_value      = NULL;
-    
+
     return sd_ble_gatts_characteristic_add(p_temp->service_handle, 
                                            &char_md,
                                            &attr_char_value,
@@ -257,7 +258,7 @@ static uint32_t interval_char_add(ble_temp_t * p_temp)
     ble_uuid_t           ble_uuid;
     ble_gatts_attr_md_t  attr_md;
     ble_gatts_char_pf_t  char_pf;
-    ble_gatts_attr_md_t  desc_md;    
+    ble_gatts_attr_md_t  desc_md;
 
     static const uint8_t user_desc[] = "Interval";
 
@@ -281,7 +282,7 @@ static uint32_t interval_char_add(ble_temp_t * p_temp)
 
     ble_uuid.type = p_temp->uuid_type;
     ble_uuid.uuid = TEMP_UUID_INTERVAL_CHAR;
-    
+
     memset(&attr_md, 0, sizeof(attr_md));
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
@@ -289,7 +290,7 @@ static uint32_t interval_char_add(ble_temp_t * p_temp)
     attr_md.rd_auth    = 0;
     attr_md.wr_auth    = 0;
     attr_md.vlen       = 0;
-    
+
     memset(&attr_char_value, 0, sizeof(attr_char_value));
     attr_char_value.p_uuid       = &ble_uuid;
     attr_char_value.p_attr_md    = &attr_md;
@@ -297,8 +298,8 @@ static uint32_t interval_char_add(ble_temp_t * p_temp)
     attr_char_value.init_offs    = 0;
     attr_char_value.max_len      = sizeof(m_interval);
     attr_char_value.p_value      = (uint8_t*) &m_interval;
-    
-    return sd_ble_gatts_characteristic_add(p_temp->service_handle, 
+
+    return sd_ble_gatts_characteristic_add(p_temp->service_handle,
                                            &char_md,
                                            &attr_char_value,
                                            &p_temp->interval_char_handles);
@@ -332,7 +333,7 @@ uint32_t ble_temp_init(ble_temp_t * p_temp)
     // Initialize service structure
     p_temp->conn_handle    = BLE_CONN_HANDLE_INVALID;
     p_temp->notify_enabled = false;
-    
+
     // Add service
     ble_uuid128_t base_uuid = {TEMP_UUID_BASE};
     err_code = sd_ble_uuid_vs_add(&base_uuid, &p_temp->uuid_type);
@@ -347,7 +348,7 @@ uint32_t ble_temp_init(ble_temp_t * p_temp)
     if (err_code != NRF_SUCCESS) {
         return err_code;
     }
-    
+
     err_code = temperature_char_add(p_temp);
     if (err_code != NRF_SUCCESS) {
         return err_code;
@@ -368,7 +369,7 @@ uint32_t ble_temp_on_temperature_update(ble_temp_t * p_temp, int16_t * value)
     uint32_t status;
 
     if (p_temp->notify_enabled == false) {
-        return NRF_SUCCESS;                
+        return NRF_SUCCESS;
     }
 
     memset(&params, 0, sizeof(params));
@@ -376,7 +377,7 @@ uint32_t ble_temp_on_temperature_update(ble_temp_t * p_temp, int16_t * value)
     params.handle = p_temp->temperature_char_handles.value_handle;
     params.p_data = (void*)value;
     params.p_len  = &len;
-    
+
     status = sd_ble_gatts_hvx(p_temp->conn_handle, &params);
 
     return status;

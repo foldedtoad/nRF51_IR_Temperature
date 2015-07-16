@@ -58,7 +58,7 @@ endif
 
 # echo suspend
 ifeq ("$(VERBOSE)","1")
-  NO_ECHO := 
+  NO_ECHO :=
 else
   NO_ECHO := @
 endif

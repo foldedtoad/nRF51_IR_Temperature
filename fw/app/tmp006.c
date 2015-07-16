@@ -1,5 +1,6 @@
 /*
  *   tmp006.c   TI IR Thermopile Sensor
+ *   Copyright (c) 2015 Robin Callender. All Rights Reserved.
  */
 #include <string.h>
 #include <stdio.h>
@@ -129,7 +130,7 @@ static bool tmp006_id_read(uint16_t * id)
         if (success == true) {
             *id = (data[0] * 256) + data[1];
         }
-    } 
+    }
     return success;
 }
 
@@ -300,7 +301,7 @@ static bool tmp006_temp_read(int16_t * temperature)
 
         tmp006_powerdown();
 
-        tmp006_Convert(Vobj, Tdie, &tObj, &tAmb); 
+        tmp006_Convert(Vobj, Tdie, &tObj, &tAmb);
 
         if ((tObj < LONG_MIN-0.5) || (tObj > LONG_MAX+0.5 )) break;
 
