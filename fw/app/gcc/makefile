@@ -1,18 +1,12 @@
 #------------------------------------------------------------------------------
-#  Temperature Server for Nordic nRF51 PCA100xx evaluation boards 
+#  Temperature Server for Nordic nRF51 PCA10028 evaluation boards 
 #------------------------------------------------------------------------------
+
+TARGET_BOARD         := BOARD_PCA10028
 
 DBGLOG_SUPPORT       := "yes"
+PROVISION_DFU        := "yes"
 INDICATE_CONNECTED   := "no"
-
-#------------------------------------------------------------------------------
-# Selectable build options
-#
-# Default TARGET_BOARD is BOARD_PCA10028
-# Override with "TARGET_BOARD=BOARD_PCA10001 make".
-#------------------------------------------------------------------------------
-
-TARGET_BOARD  ?= BOARD_PCA10028
 
 #------------------------------------------------------------------------------
 # Define relative paths to SDK components
@@ -78,7 +72,7 @@ CP       := cp
 GENDAT   := ./gen_dat
 GENZIP   := zip
 
-BUILDMETRICS  = ./buildmetrics.py
+BUILDMETRICS  := ./buildmetrics.py
 
 # function for removing duplicates in a list
 remduplicates = $(strip $(if $1,$(firstword $1) $(call remduplicates,$(filter-out $(firstword $1),$1))))
@@ -97,6 +91,20 @@ endif
 
 ifeq ($(INDICATE_CONNECTED), "yes")
 	CFLAGS += -D INDICATE_CONNECTED=1
+endif
+
+ifeq ($(PROVISION_DFU), "yes")
+	CFLAGS += -D BLE_DFU_APP_SUPPORT
+
+	C_SOURCE_FILES += ../dfu_trigger/ble_dfu.c
+	C_SOURCE_FILES += ../dfu_trigger/bootloader_util_gcc.c
+	C_SOURCE_FILES += ../dfu_trigger/dfu_app_handler.c
+
+	INC_PATHS += -I../dfu_trigger
+
+	LINKER_SCRIPT = ./gcc_nrf51_s110_xxac_dfu.ld
+else
+	LINKER_SCRIPT = ./gcc_nrf51_s110_xxac.ld
 endif
 
 C_SOURCE_FILES += $(COMPONENTS)/ble/ble_radio_notification/ble_radio_notification.c
@@ -242,7 +250,9 @@ all: $(BUILD_DIRECTORIES) $(OBJECTS)
 	@echo "build target:  $(TARGET_BOARD)"
 	@echo "build SOC:     $(TARGET_SOC)"
 	@echo "build options  --"
-	@echo "               DBGLOG_SUPPORT   $(DBGLOG_SUPPORT)"
+	@echo "               DBGLOG_SUPPORT     $(DBGLOG_SUPPORT)"
+	@echo "               PROVISION_DFU      $(PROVISION_DFU)"
+	@echo "               INDICATE_CONNECTED $(INDICATE_CONNECTED)"
 	@echo "build products --"
 	@echo "               $(OUTPUT_NAME).elf"
 	@echo "               $(OUTPUT_NAME).hex"

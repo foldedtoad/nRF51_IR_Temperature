@@ -21,6 +21,7 @@
 #include "dfu_ble_svc.h"
 #include "device_manager.h"
 #include "nrf_delay.h"
+#include "config.h"
 #include "dbglog.h"
 
 #define IRQ_ENABLED            0x01                                     /**< Field that identifies if an interrupt is enabled. */
@@ -31,9 +32,6 @@ static dfu_app_reset_prepare_t m_reset_prepare = dfu_app_reset_prepare; /**< Cal
 static dfu_ble_peer_data_t     m_peer_data;                             /**< Peer data to be used for data exchange when resetting into DFU mode. */
 static dm_handle_t             m_dm_handle;                             /**< Device Manager handle with instance IDs of current BLE connection. */
 
-
-extern uint16_t g_conn_handle;            // in main.c
-uint32_t service_changed_indicate(void);  // in main.c
 
 /**@brief Function for reset_prepare handler if the application has not registered a handler.
  */
@@ -162,17 +160,12 @@ void dfu_app_on_dfu_evt(ble_dfu_t * p_dfu, ble_dfu_evt_t * p_evt)
     switch (p_evt->ble_dfu_evt_type)
     {
         case BLE_DFU_START:
-#if 0 
-            // Starting the bootloader - will cause reset.
-            bootloader_start(g_conn_handle);
-#else
             /*
              *  Do Service Changed indication.
              *  Note: The BLE_GATTS_EVT_SC_CONFIRM event will 
              *        invoke bootloader_start().
              */
             service_changed_indicate();
-#endif
             break;
 
         default:

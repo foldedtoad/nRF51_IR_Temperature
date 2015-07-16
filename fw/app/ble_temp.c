@@ -15,6 +15,7 @@
 #include "ble_temp.h"
 #include "tmp006.h"
 #include "dbglog.h"
+#include "ble_dfu.h"
 
 static app_timer_id_t   m_temperature_timer_id;   /* Temperature interval timer. */
 
@@ -125,6 +126,8 @@ static void on_write(ble_temp_t * p_temp, ble_evt_t * p_ble_evt)
 
         case TEMP_UUID_SERVICE:
         case BLE_UUID_BATTERY_LEVEL_CHAR:
+        case BLE_UUID_GATT_CHARACTERISTIC_SERVICE_CHANGED:
+        case BLE_DFU_CTRL_PT_UUID:
             // Quietly ignore these events.
             break;
 

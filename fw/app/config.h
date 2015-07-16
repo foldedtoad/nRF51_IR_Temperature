@@ -8,9 +8,6 @@
 #include <stdint.h>
 #include "boards.h"
 
-
-#define IS_SRVC_CHANGED_CHARACT_PRESENT 0                                           /* Include or not the service_changed characteristic. if not enabled, the server's database cannot be changed for the lifetime of the device*/
-
 #define ADVERTISING_LED_PIN             BSP_LED_0                                   /* Is on when device is advertising. */
 #define CONNECTED_LED_PIN               BSP_LED_1                                   /* Is on when device has connected. */
 
@@ -64,9 +61,16 @@
 #define SCHED_MAX_EVENT_DATA_SIZE       sizeof(app_timer_event_t)                   /* Maximum size of scheduler events. Note that scheduler BLE stack events do not contain any data, as the events are being pulled from the stack in the event handler. */
 #define SCHED_QUEUE_SIZE                10                                          /* Maximum number of events in the scheduler queue. */
 
+#define APP_SERVICE_HANDLE_START         0x000C                                     /* Handle of first application specific service when when service changed characteristic is present. */
+#define BLE_HANDLE_MAX                   0xFFFF                                     /* Max handle value in BLE. */
+
 #define LED_ON(led)                     nrf_gpio_pin_clear(led)
 #define LED_OFF(led)                    nrf_gpio_pin_set(led)
 
+/*
+ *  Prototypes and Externs exported from main.c
+ */
 uint32_t app_timer_ticks(uint32_t ms);
+uint32_t service_changed_indicate(void);
 
 #endif /* _CONFIG_H__ */
