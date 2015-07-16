@@ -5,3 +5,10 @@ Here is a photo of the [hardware](https://github.com/foldedtoad/nRF51_IR_Tempera
 The white protoboard area has the actual TMP006 Infrared Temperature sensor.  
 The TMP006 module was purchased from Adafruit as was the Arduino protoboard shield.  
 
+The firmware assumes that Nordic's SDK 8.x and SoftDevice 8 are available on the build system.
+
+This project support top-level features  
+
+* Unified firmware image - single consolidated flash image which has softdevice + app + bootloader.
+* OTA-DFU - Overt-The-Air, Device Firmware Update: single-bank version
+* Software-triggered Bootloader entry - Use Nordic's Master Control Panel to update application firmware. 
