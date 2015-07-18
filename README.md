@@ -18,6 +18,7 @@ Optional, but highly recommended
 
 ##Project Features  
 
+* Remotely measure the temperature of object and relays readings to central device. 
 * Unified firmware image - single consolidated flash image which has softdevice + app + bootloader.
 * OTA-DFU - Over-The-Air, Device Firmware Update: single-bank version
 * Software-triggered Bootloader entry - Use Nordic's Master Control Panel to update application firmware. 
