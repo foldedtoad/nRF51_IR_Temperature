@@ -13,6 +13,7 @@
 #include "nrf.h"
 #include "app_error.h"
 #include "nrf_gpio.h"
+#include "nrf_adc.h"
 #include "nrf51_bitfields.h"
 #include "ble.h"
 #include "ble_hci.h"
@@ -72,11 +73,12 @@ static ble_dfu_t                  m_dfus;
 static ble_bas_t                 m_bas;                    /* Structure used to identify the battery service. */
 static app_timer_id_t            m_battery_timer_id;       /* Battery timer. */
 
-#ifdef USE_BATTERY_SIMULATOR 
-/* Battery Simulator  */
-static ble_sensorsim_cfg_t       m_battery_sim_cfg;        /* Battery Level sensor simulator configuration. */
-static ble_sensorsim_state_t     m_battery_sim_state;      /* Battery Level sensor simulator state. */
-#endif
+#define ADC_REF_VOLTAGE_IN_MILLIVOLTS     1200    /* Reference voltage (in milli volts) used by ADC while doing conversion. */
+#define ADC_PRE_SCALING_COMPENSATION      3       /* The ADC is configured to use VDD with 1/3 prescaling as input. And hence the result of conversion is to be multiplied by 3 to get the actual value of the battery voltage.*/
+#define DIODE_FWD_VOLT_DROP_MILLIVOLTS    270     /* Typical forward voltage drop of the diode (Part no: SD103ATW-7-F) that is connected in series with the voltage supply. This is the voltage drop when the forward current is 1mA. Source: Data sheet of 'SURFACE MOUNT SCHOTTKY BARRIER DIODE ARRAY' available at www.diodes.com. */
+
+#define ADC_RESULT_IN_MILLI_VOLTS(ADC_VALUE)\
+        ((((ADC_VALUE) * ADC_REF_VOLTAGE_IN_MILLIVOLTS) / 255) * ADC_PRE_SCALING_COMPENSATION)
 
 /*
  *  Function for error handling, which is called when an error has occurred.
@@ -121,55 +123,80 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
     app_error_handler(DEAD_BEEF, line_num, p_file_name);
 }
 
-/*
- *  Function for performing battery measurement and updating the 
- *  Battery Level characteristic in Battery Service.
+
+/**@brief Function for handling the ADC interrupt.
+ *
+ * @details  This function will fetch the conversion result from the ADC, convert the value into
+ *           percentage and send it to peer.
  */
-static void battery_level_update(void)
+void ADC_IRQHandler(void)
 {
-    uint32_t err_code;
-    uint8_t  battery_level;
+    if (nrf_adc_conversion_finished()) {
+        uint8_t  adc_result;
+        uint16_t batt_lvl_in_milli_volts;
+        uint8_t  percentage_batt_lvl;
+        uint32_t err_code;
 
-#ifdef USE_BATTERY_SIMULATOR
+        nrf_adc_conversion_event_clean();
 
-    battery_level = (uint8_t)ble_sensorsim_measure(&m_battery_sim_state, &m_battery_sim_cfg);
+        adc_result = nrf_adc_result_get();
 
-#else
+        batt_lvl_in_milli_volts = 
+            ADC_RESULT_IN_MILLI_VOLTS(adc_result) + DIODE_FWD_VOLT_DROP_MILLIVOLTS;
 
-    uint16_t    batt_lvl_in_milli_volts;
+        percentage_batt_lvl = battery_level_in_percent(batt_lvl_in_milli_volts);
 
-    batt_lvl_in_milli_volts = 3000;    // FIXME with real ADC measured voltage
+        err_code = ble_bas_battery_level_update(&m_bas, percentage_batt_lvl);
+        
+        if ((err_code != NRF_SUCCESS)             &&
+            (err_code != NRF_ERROR_INVALID_STATE) &&
+            (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
+            (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING))
+        {
+            APP_ERROR_HANDLER(err_code);
+        }
 
-    battery_level = battery_level_in_percent(batt_lvl_in_milli_volts);
-
-#endif
-
-    err_code = ble_bas_battery_level_update(&m_bas, battery_level);
-
-    if ((err_code != NRF_SUCCESS) &&
-        (err_code != NRF_ERROR_INVALID_STATE) &&
-        (err_code != BLE_ERROR_NO_TX_BUFFERS) &&
-        (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
-    )
-    {
-        APP_ERROR_HANDLER(err_code);
+        //PRINTF("battery: %d%%\n", (int)percentage_batt_lvl);
     }
 }
 
-/*
- *  Function for handling the Battery measurement timer timeout.
+/**@brief Function for configuring ADC to do battery level conversion.
+ */
+static void adc_configure(void)
+{
+    uint32_t err_code;
+    nrf_adc_config_t adc_config = NRF_ADC_CONFIG_DEFAULT;
+
+    // Configure ADC
+    adc_config.reference  = NRF_ADC_CONFIG_REF_VBG;
+    adc_config.resolution = NRF_ADC_CONFIG_RES_8BIT;
+    adc_config.scaling    = NRF_ADC_CONFIG_SCALING_SUPPLY_ONE_THIRD;
+    nrf_adc_configure(&adc_config);
+
+    // Enable ADC interrupt
+    nrf_adc_int_enable(ADC_INTENSET_END_Msk);
+    err_code = sd_nvic_ClearPendingIRQ(ADC_IRQn);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = sd_nvic_SetPriority(ADC_IRQn, NRF_APP_PRIORITY_LOW);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = sd_nvic_EnableIRQ(ADC_IRQn);
+    APP_ERROR_CHECK(err_code);
+}
+
+/**@brief Function for handling the Battery measurement timer timeout.
  *
- *  This function will be called each time the battery level measurement timer
- *  expires.
+ * @details This function will be called each time the battery level measurement timer expires.
+ *          This function will start the ADC.
  *
- *  param[in]   p_context   Pointer used for passing some arbitrary information 
- *                          (context) from the app_start_timer() call to the 
- *                          timeout handler.
+ * @param[in]   p_context   Pointer used for passing some arbitrary information (context) from the
+ *                          app_start_timer() call to the timeout handler.
  */
 static void battery_level_meas_timeout_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
-    battery_level_update();
+    nrf_adc_start();
 }
 
 /*
@@ -1070,6 +1097,7 @@ int main(void)
     timers_init();
     gpiote_init();
     tmp006_init();
+    adc_configure();
 
     PUTS("Starting BLE services");
 

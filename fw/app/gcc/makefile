@@ -118,6 +118,7 @@ C_SOURCE_FILES += $(COMPONENTS)/ble/device_manager/device_manager_peripheral.c
 C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/pstorage/pstorage.c
 C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/twi_master/twi_hw_master.c
 C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/hal/nrf_delay.c
+C_SOURCE_FILES += $(COMPONENTS)/drivers_nrf/hal/nrf_adc.c
 C_SOURCE_FILES += $(COMPONENTS)/libraries/timer/app_timer.c
 C_SOURCE_FILES += $(COMPONENTS)/libraries/gpiote/app_gpiote.c
 C_SOURCE_FILES += $(COMPONENTS)/libraries/scheduler/app_scheduler.c
