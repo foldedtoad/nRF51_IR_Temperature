@@ -5,6 +5,9 @@ Here is a photo of the [hardware](https://github.com/foldedtoad/nRF51_IR_Tempera
 The white protoboard area has the actual TMP006 Infrared Temperature sensor.  
 The TMP006 module was purchased from Adafruit as was the Arduino protoboard shield.  
 
+**NOTE**
+This project can be built on Linux or OSX, but it has not yet been updated to support Windows.
+
 ##Project Assumptions  
 
 * Nordic's SDK 8.x
