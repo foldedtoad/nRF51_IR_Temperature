@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IRTemp</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_peripheral">Peripheral</string>
+    <string name="title_activity_irtemp">IRTempActivity</string>
+    <string name="dynamic_plot">Dynamic Plot</string>    
+
+</resources>
