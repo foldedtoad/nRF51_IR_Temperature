@@ -124,19 +124,26 @@
         android:orientation="horizontal"
         android:weightSum="1">
 
-        <Space
-            android:layout_width="30dp"
-            android:layout_height="match_parent"/>
-
-        <ToggleButton
-            android:id="@+id/led_characteristic_toggle"
-            android:layout_width="113dp"
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LED Toggle"
-            android:textOff="turn LED on"
-            android:textOn="turn LED Off"
-            android:layout_below="@+id/tableLayout1"
-            android:layout_alignStart="@+id/linearLayout2" />
+            android:text="Set Interval"
+            android:id="@+id/intervalSetButton" />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/interval"
+            android:layout_weight="0.16"
+            android:background="#dedede"
+            android:inputType="number" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" in seconds"
+            android:id="@+id/textView1" />
 
     </LinearLayout>
     

@@ -17,9 +17,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Button;
 
 import com.androidplot.ui.AnchorPosition;
 import com.androidplot.ui.DynamicTableModel;
@@ -33,12 +36,12 @@ import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYStepMode;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 
 public class PeripheralActivity extends Activity implements BleWrapperUiCallbacks {
@@ -56,6 +59,8 @@ public class PeripheralActivity extends Activity implements BleWrapperUiCallback
     private ListView           mListView;
     private LoggerListAdapter  mLogAdapter;
     private LayoutInflater     mInflater;
+    private EditText           mIntervalEditText;
+    private Button             mIntervalButton;
 
     private String mDeviceName;
     private String mDeviceRSSI;
@@ -203,6 +208,12 @@ public class PeripheralActivity extends Activity implements BleWrapperUiCallback
         mLogAdapter = new LoggerListAdapter(this);
         mListView.setAdapter(mLogAdapter);
 
+        mIntervalEditText = (EditText) findViewById(R.id.interval);
+        mIntervalButton = (Button) findViewById(R.id.intervalSetButton);
+        mIntervalButton.setOnClickListener(intervalButtonListener);
+
+        mIntervalEditText.setText(String.valueOf(mPeriod));
+
         /*  Plot initialization */
 
         dynamicPlot = (XYPlot) findViewById(R.id.dynamicPlot);
@@ -327,7 +338,21 @@ public class PeripheralActivity extends Activity implements BleWrapperUiCallback
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
+    OnClickListener intervalButtonListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            String string = mIntervalEditText.getText().toString();
+
+            Log.d(TAG, "new interval " + string);
+            mPeriod = Integer.parseInt(string);
+
+            intervalUpdate();
+        }
+    };
+
+
     public void updateUI(short[] data) {
 
         // Update the Plot
