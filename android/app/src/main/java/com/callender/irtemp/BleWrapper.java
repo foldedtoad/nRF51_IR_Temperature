@@ -276,7 +276,7 @@ public class BleWrapper {
         }
         Log.d(TAG, strValue);
 
-        String timestamp = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS").format(new Date());
+        String timestamp = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss.SSS  ").format(new Date());
         
         mUiCallback.uiNewValueForCharacteristic(mBluetoothGatt,
                                                 mBluetoothDevice,

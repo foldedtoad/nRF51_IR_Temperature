@@ -141,7 +141,10 @@ public class PeripheralActivity extends Activity implements BleWrapperUiCallback
                 updateUI(data);
 
                 if (uuid.equals(BleDefinedUUIDs.Characteristic.TEMPERATURE_CHAR)) {
-                    mLogAdapter.addLine(strValue);
+                    StringBuilder logline = new StringBuilder();
+                    logline.append(timestamp);
+                    logline.append(strValue);
+                    mLogAdapter.addLine(logline.toString());
                 }
             }
         });
