@@ -1087,7 +1087,10 @@ int main(void)
     scheduler_init();
 
     // Initialize
+
+#if defined(DBGLOG_SUPPORT)
     uart_init();
+#endif
 
     PRINTF("\n*** Temp built: %s %s ***\n\n", __DATE__, __TIME__);
 

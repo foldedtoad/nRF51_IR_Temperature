@@ -12,7 +12,9 @@
 //-----------------------------------------------------------------------------
 int putchar( int c )
 {
+#if defined(DBGLOG_SUPPORT)
     uart_putc((uint8_t)c);
+#endif
     return 0;
 }
 

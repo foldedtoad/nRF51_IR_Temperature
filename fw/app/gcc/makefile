@@ -29,25 +29,33 @@ export GNU_INSTALL_ROOT
 MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
 
+LINKER_SCRIPT := ./gcc_nrf51_s110_$(TARGET_SOC).ld
+
 MAKEFILE_NAME := $(MAKEFILE_LIST)
 MAKEFILE_DIR := $(dir $(MAKEFILE_NAME) ) 
 
 ifeq ($(TARGET_BOARD), BOARD_PCA10028)
-	TARGET_SOC = xxac
+  TARGET_SOC = xxac
 else
-ifeq ($(TARGET_BOARD), BOARD_PCA10001)
-	TARGET_SOC = xxaa
-else 
-	ECHO "invalid TARGET_BOARD"
+  ECHO "invalid TARGET_BOARD"
 endif
-endif
-
-LINKER_SCRIPT := ./gcc_nrf51_s110_$(TARGET_SOC).ld
 
 ifeq ($(OS),Windows_NT)
   include $(TEMPLATE_PATH)/Makefile.windows
 else
   include $(TEMPLATE_PATH)/Makefile.posix
+endif
+
+ifeq ($(OS),Windows_NT)
+    EXT = .exe
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        EXT =
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        EXT = .osx
+    endif
 endif
 
 # echo suspend
@@ -69,7 +77,7 @@ SIZE     := "$(GNU_INSTALL_ROOT)/bin/$(GNU_PREFIX)-size"
 MK       := mkdir
 RM       := rm -rf
 CP       := cp
-GENDAT   := ./gen_dat
+GENDAT   := ./gen_dat$(EXT)
 GENZIP   := zip
 
 BUILDMETRICS  := ./buildmetrics.py
@@ -187,28 +195,22 @@ CFLAGS += -D BLE_STACK_SUPPORT_REQD
 CFLAGS += -D S110
 CFLAGS += -D SOFTDEVICE_PRESENT
 CFLAGS += -D $(TARGET_BOARD)
-CFLAGS += -D SOFTDEVICE_PRESENT
-CFLAGS += -D SOFTDEVICE_PRESENT
 CFLAGS += -mcpu=cortex-m0
 CFLAGS += -mthumb -mabi=aapcs --std=gnu99
 CFLAGS += -Wall -Werror
+CFLAGS += -Wa,-adhln
 CFLAGS += -mfloat-abi=soft
-# keep every function in separate section. This will allow linker to dump unused functions
 CFLAGS += -ffunction-sections 
 CFLAGS += -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin
 
-# keep every function in separate section. This will allow linker to dump unused functions
 LDFLAGS += -Xlinker -Map=$(LISTING_DIRECTORY)/$(OUTPUT_NAME).map
 LDFLAGS += -mthumb -mabi=aapcs -L $(TEMPLATE_PATH) -T$(LINKER_SCRIPT)
 LDFLAGS += -mcpu=cortex-m0
 LDFLAGS += $(DEBUG_FLAGS)
-# let linker to dump unused sections
 LDFLAGS += -Wl,--gc-sections
-# use newlib in nano version
 LDFLAGS += --specs=nano.specs -lc -lnosys
 
-# Assembler flags
 ASMFLAGS += $(DEBUG_FLAGS)
 ASMFLAGS += -x assembler-with-cpp
 ASMFLAGS += -D NRF51
@@ -216,7 +218,6 @@ ASMFLAGS += -D BLE_STACK_SUPPORT_REQD
 ASMFLAGS += -D S110
 ASMFLAGS += -D SOFTDEVICE_PRESENT
 ASMFLAGS += -D $(TARGET_BOARD)
-
 
 C_SOURCE_FILE_NAMES = $(notdir $(C_SOURCE_FILES))
 C_PATHS = $(call remduplicates, $(dir $(C_SOURCE_FILES) ) )
@@ -296,7 +297,7 @@ $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).bin: $(OUTPUT_BINARY_DIRECTORY)/$(OUTP
 	@echo Preparing: $(OUTPUT_NAME).bin
 	$(NO_ECHO)$(OBJCOPY) -O binary $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).elf $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).bin
 
-## Create binary .hex file from the .elf file
+# Create binary .hex file from the .elf file
 $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).hex: $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).elf
 	@echo Preparing: $(OUTPUT_NAME).hex
 	$(NO_ECHO)$(OBJCOPY) -O ihex $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).elf $(OUTPUT_BINARY_DIRECTORY)/$(OUTPUT_NAME).hex
