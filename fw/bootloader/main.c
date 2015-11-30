@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2015 Moment Inc. All Rights Reserved.
+ *  Copyright (c) 2015 Robin Callender. All Rights Reserved.
  */
 #include <stdio.h>
 #include <stdint.h>
@@ -34,9 +34,9 @@
 /*
  *  Device Information defines
  */
-#define DEVICE_NAME          "Vibir"
-#define MANUFACTURER_NAME    "Trico"
-#define MODEL_NUM            "Model-2"
+#define DEVICE_NAME          "Temperature"
+#define MANUFACTURER_NAME    "Callender Consulting"
+#define MODEL_NUM            "Model-1"
 #define MANUFACTURER_ID      0x1122334455
 #define FIRMWARE_REV_NAME    "SD 8.0"
 #define SOFTWARE_REV_NAME    "Built on "__DATE__ " at " __TIME__
