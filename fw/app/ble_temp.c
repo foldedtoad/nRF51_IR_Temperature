@@ -58,7 +58,7 @@ static void on_temp_cccd_write(ble_temp_t * p_temp, ble_gatts_evt_write_t * p_ev
         if (enabled) {
             p_temp->notify_enabled = true;
             PUTS("Start temp timer");
-            APP_ERROR_CHECK(app_timer_start(m_temperature_timer_id, m_interval, NULL));
+            APP_ERROR_CHECK(app_timer_start(m_temperature_timer_id, m_interval_ticks, NULL));
         }
         else {
             p_temp->notify_enabled = false;
